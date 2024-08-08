@@ -1,1 +1,1 @@
-Le Rapidomatic est une extansion Chrome. 
+Le Rapidomatic est une extension Chrome. 
