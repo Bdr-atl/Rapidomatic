@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Insert Text and Date",
+    "name": "Rapidomatic",
     "version": "2.0.2.3",
     "description": "Inserts text and date into input fields with keyboard shortcuts. THIS EXTENSION IS FOR BÊTA TESTING",
     "permissions": [
