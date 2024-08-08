@@ -1,0 +1,50 @@
+{
+    "manifest_version": 3,
+    "name": "Insert Text and Date",
+    "version": "2.0.2.3",
+    "description": "Inserts text and date into input fields with keyboard shortcuts. THIS EXTENSION IS FOR BÊTA TESTING",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "icons": {
+        "16": "files/icon16.png",
+        "48": "files/icon48.png",
+        "128": "files/icon128.png"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "files/icon16.png",
+            "48": "files/icon48.png",
+            "128": "files/icon128.png"
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://groupe-atlantic.lightning.force.com/lightning/*",
+			"file:///S:/SATC/PUBLIC/*/testpage.html"
+],
+            "js": ["content.js"],
+            "run_at": "document_end"
+        }
+    ],
+    "commands": {
+        "insertTextAndDate1": {
+            "suggested_key": {
+                "default": "Ctrl+Q"
+            },
+            "description": "Insert text and date into input field 1"
+        },
+        "insertTextAndDate2": {
+            "suggested_key": {
+                "default": "Alt+Q"
+            },
+            "description": "Insert text and date into input field 2"
+        }
+    }
+}

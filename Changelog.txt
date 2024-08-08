@@ -1,0 +1,30 @@
+V2.0.1 
+Script fonctionnel, il remplace bien un texte par un autre text. 
+
+V2.0.1.1 
+Amélioration du script pour pouvoir faire plusieur remplacement 
+mais il y a un bug quand on entre ./ plusieur fois il le remplacement sur toute la page. 
+
+V2.0.1.2
+Correction du bug de multiremplacement.
+Ajout des icones dans le dossier "files".
+
+V2.0.1.3
+Ajout des raccourcis claviers de la version 2.0 --> tous ne fonctionne pas. 
+
+V2.0.1.5
+Correction des bugs de récupération des dates du popup.js
+
+V2.0.2
+CTRL+Q, ALT+Q, et les règles de replacement fonctionnement
+Validation du fonctionnement normal. 
+Mise en publication pour BETAtest. 
+
+V2.0.2.1
+Ajout d'un sélecteur d'équipe pour pouvoir choisir les raccourcis. 
+
+V2.0.2.2
+Ajoute d'une popup "aide mémoire". 
+Bug Fixe: suppression de l'ouverture d'une nouvelle fenetre aide memoire à chaque clic sur le bouton.
+
+

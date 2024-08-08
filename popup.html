@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Aide mémoire</title>
+    <style>
+        body {
+            width: 250px;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .container {
+            padding: 10px;
+            height: 430px;
+            position: relative;
+        }
+        h3 {
+            margin: 0;
+            padding: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 1px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 60px;
+            overflow-y: auto;
+            resize: vertical;
+            max-width: 100%;
+            min-width: 0;
+        }
+        button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 5px;
+            border: none;
+            color: white;
+            background-color: #0070d2;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.3s;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .clicked {
+            background-color: #28a745;
+        }
+        .logo {
+            position: absolute;
+            bottom: 20px;
+            left: 1px;
+            width: 110px;
+            height: auto;
+        }
+        .key-users {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            font-size: 9px;
+            color: #666;
+            text-align: right;
+        }
+        .model-switcher {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .model-switcher button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .model-switcher button.active {
+            background-color: #005bb5;
+            border-color: #003d80;
+        }
+        .model-content {
+            display: none;
+        }
+        .model-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="model-switcher">
+            <button id="model1Button" class="active">Modèle 1 CTRL+Q</button>
+            <button id="model2Button">Modèle 2 ALT+Q</button>
+        </div>
+
+        <div id="model1" class="model-content active">
+            <div class="input-section">
+                <h3>Tapez vos initiales</h3>
+                <input type="text" id="customText1" placeholder="Entrez votre texte ici">
+            </div>
+            <div class="input-section">
+                <h3>Message personnalisé<span style="font-size: 12px; color: #666;">CTRL+Q</span></h3>
+                <textarea id="customMessage1" placeholder="Entrez votre message ici (laisser un espace pour vide)"></textarea>
+            </div>
+        </div>
+        <div id="model2" class="model-content">
+            <div class="input-section">
+                <h3>Message personnalisé<span style="font-size: 12px; color: #666;">ALT+Q</span></h3>
+                <textarea id="customMessage2" placeholder="Entrez votre message ici (vide initiales + date uniquement)"></textarea>
+            </div>
+        </div>
+        <select id="teamSelector">
+            <option value="textReplacementsCTCLRY">CTC</option>
+            <option value="textReplacementsCRCGPLRY">CRC GP</option>
+            <option value="textReplacementsCRCPROLRY">CRC PRO</option>
+            <option value="textReplacementsATLCONSOLRY">CONSO</option>
+        </select>
+        <button id="saveButton">Sauvegarder</button>
+        <button id="viewReplacementsButton">Aide mémoire</button>
+        <img src="/files/logo.png" alt="Logo" class="logo">
+        <div class="key-users">
+            Key users : Benoit R & Gianni D.
+            <div class="version">version: 2.0.2.3</div>
+        </div>
+    </div>
+    <script src="popup.js"></script> 
+</body>
+</html>
