@@ -1,184 +1,223 @@
-// Immediately Invoked Function Expression (IIFE) to encapsulate the script
-(function() {
-	// règles:
-	// pas de .r .net .com etc ( pensez aux effets de bord) 
-	// minimum 2 carractère après le carratère spécial 
-	// faire les raccourcis en minuscules
-    const textReplacementsCTCLRY = {
-        '.cz': "Code PIN:\nAdresse  mail:\nCause de l'appel:\nVersion app:\nOS Téléphone:\nModèle de Box:\nNom réseau wifi:\nDistance de la box:\nFréquence:\n",
-	'.chod': "Date de mise en service:\nPosé à la:\nAlimenté en:\nPlus d'EC depuis:\nEtat des voyants:\nEntretien:\nPrésence d'un limiteur:\nPrésence d'un adoucisseur:\nApizee:",
-	'.cet': "Date de mise en service:\nCause de l'appel:\nType de gainage:\nEntretien PAC:\nHistorique des erreurs:\n",
-        '.test': "test CTC",
-	'.ge': "Merci d'envoyer en GE + Coupon T :\n\n\nStock ok\nAdresse ok\n",
-	//'.301': "T\n1x ref: \n\nStock ok\nAdresse ok\n",
-	//'.503': "",
-	'.avg': "Merci d'envoyer en AVG + Coupon T :\n\n\nStock ok\nAdresse ok\n",
-        '.ko': "3 appels, pas de réponse \nLaissé message\n",
-        '.sinistre': "Date d'installation: \nDate du sinistre: \nType de câble alimentation et section : \nType de borne de raccordement : \nInstallation neuve ou remplacement : \nType de logement: \nLocalisation du chauffe-eau dans le logement: \nEntretien oui/non, date: \nSi Adouccisseur oui/non et réglage: \nBac de rétention Oui/Non:\n Faire notif Valérie Moreau + photo et/ou Apizee",
-        '.diag': "Date de Mise en service: \nProblème depuis: \nCause: \nDiagnostique: \n\n\nSTP envoyer  + Coupon T \n\nStock ok\nAdresse ok\n"
-    };
+(function rapidomatic() {
+    const MAX_RETRIES = 3; // Maximum number of retries
+    let retryCount = 0;    // Retry counter
 
-    const textReplacementsCRCGPLRY = {
-        '.cz': "Code PIN: \nAdresse mail du client: \nCode Produit: \n",
-        '.test': "test CRC GP",
-	'.rap': "Tech, Merci de Rappeler SVP sur portable",
-        '.sinistre': "Date d'installation: \nDate du sinistre: \nType de câble alimentation et section : \nType de borne de raccordement : \nInstallation neuve ou remplacement : \nType de logement: \nLocalisation du chauffe-eau dans le logement: \nEntretien oui/non, date: \nSi Adouccisseur oui/non et réglage: \nBac de rétention Oui/Non:\n Faire notif Valérie Moreau + photo et/ou Apizee",
-    };
-
-    const textReplacementsCRCPROLRY = {
-        '.coz': "Code PIN: \nAdresse mail du client: \nProduit: \n",
-        '.test': "test CRC PRO",
-	'.ge': "Envoi en GE \nAdresse OK \n",
-	'.rap': "Tech, Merci de Rappeler SVP sur portable",
-        '.sinistre': "Date d'installation: \nDate du sinistre: \nType de câble alimentation et section : \nType de borne de raccordement : \nInstallation neuve ou remplacement : \nType de logement: \nLocalisation du chauffe-eau dans le logement: \nEntretien oui/non, date: \nSi Adouccisseur oui/non et réglage: \nBac de rétention Oui/Non:\n Faire notif Valérie Moreau + photo et/ou Apizee",
-    };
-    const textReplacementsATLCONSOLRY = {
-        '.coz': "Code PIN: \nAdresse mail du client: \nProduit: \n",
-        '.test': "test CONSO",
-        '.ko': "3 appels, pas de réponse \nLaissé message\n",
-    };
-	chrome.storage.local.set({
-  	  textReplacementsCTCLRY,
-  	  textReplacementsCRCGPLRY,
-  	  textReplacementsCRCPROLRY,
-  	  textReplacementsATLCONSOLRY
-	});
-
-    // Function to format time in HH:MM
-    const formatTime = () => {
-        const now = new Date();
-        return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    };
-
-    // Function to insert text and date based on patterns
-    const insertTextAndDate = () => {
-        console.log("insertTextAndDate function called...");
-
-        const focusedElement = document.activeElement;
-        if (focusedElement && (focusedElement.tagName.toLowerCase() === 'textarea' || (focusedElement.tagName.toLowerCase() === 'input' && focusedElement.type === 'text')) && !focusedElement.readOnly) {
-            console.log("Focused element is a valid input/textarea...");
-
-            chrome.storage.local.get(['selectedTeam'], (data) => {
-                const team = data.selectedTeam || 'textReplacementsCTCLRY';
-                const textReplacements = {
-                    'textReplacementsCTCLRY': textReplacementsCTCLRY,
-                    'textReplacementsCRCGPLRY': textReplacementsCRCGPLRY,
-                    'textReplacementsCRCPROLRY': textReplacementsCRCPROLRY,
-		    'textReplacementsATLCONSOLRY': textReplacementsATLCONSOLRY
-                }[team];
-
-                let currentValue = focusedElement.value;
-                let replaced = false;
-
-                for (const [pattern, customText] of Object.entries(textReplacements)) {
-                    if (currentValue.includes(pattern)) {
-                        currentValue = currentValue.replace(new RegExp(escapeRegExp(pattern), 'g'), customText);
-                        replaced = true;
-                        console.log(`Pattern '${pattern}' replaced with custom text.`);
-                        break; // Stop after the first replacement
-                    }
-                }
-
-                if (replaced) {
-                    focusedElement.value = currentValue;
-                    focusedElement.setSelectionRange(currentValue.length, currentValue.length);
-                    focusedElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-                    focusedElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-                    console.log(`Text inserted: ${currentValue}`);
-                } else {
-                    console.log("No replacement made. Patterns not found.");
-                }
-            });
+    const initScript = () => {
+        if (chrome.runtime && chrome.runtime.id) {
+            console.log("Extension context is valid. Initializing script...");
+            runMainLogic(); // Main script logic
         } else {
-            console.log("Focused element is not a valid input/textarea or is read-only.");
-        }
-    };
-
-    // Escape special characters for regex
-    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    // Handle key events
-    let typingTimer;
-    const doneTypingInterval = 300;
-
-    const handleKeyUp = () => {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(insertTextAndDate, doneTypingInterval);
-    };
-
-    const handleKeyDown = () => {
-        clearTimeout(typingTimer);
-    };
-
-    // Add event listeners to textareas and inputs
-    const addEventListeners = () => {
-        console.log("Adding event listeners to textareas and inputs...");
-        document.querySelectorAll('textarea.slds-textarea, input[type="text"]').forEach(input => {
-            input.removeEventListener('keyup', handleKeyUp);
-            input.removeEventListener('keydown', handleKeyDown);
-            input.addEventListener('keyup', handleKeyUp);
-            input.addEventListener('keydown', handleKeyDown);
-        });
-        console.log("Event listeners added.");
-    };
-
-    // Observe DOM changes
-    const observer = new MutationObserver(() => {
-        console.log("Mutation detected...");
-        addEventListeners();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log("DOM content loaded...");
-        addEventListeners();
-    });
-
-    setTimeout(addEventListeners, 1000);
-
-    // Add event listener for key combinations
-    document.addEventListener('keydown', (event) => {
-        if (event.ctrlKey && event.key === 'q') {
-            console.log('Ctrl+Q detected');
-            insertTextAndDate1();
-        } else if (event.altKey && event.key === 'q') {
-            console.log('Alt+Q detected');
-            insertTextAndDate2();
-        }
-    });
-
-    // Function to insert custom text and date
-    const insertCustomTextAndDate = (storageKeyPrefix) => {
-        chrome.storage.local.get(['customText1', 'customMessage1', 'customMessage2'], (data) => {
-            const customText1 = data.customText1 || 'Vos Initiales';
-            const customMessage1 = data.customMessage1 || '';
-            const customMessage2 = data.customMessage2 || '';
-            const focusedElement = document.activeElement;
-
-            if (focusedElement && (focusedElement.tagName.toLowerCase() === 'textarea' || (focusedElement.tagName.toLowerCase() === 'input' && focusedElement.type === 'text')) && !focusedElement.readOnly) {
-                const currentDate = new Date().toLocaleDateString();
-                const currentTime = formatTime();
-                const template = `${customText1} le ${currentDate} à ${currentTime}`;
-                const textToInsert1 = customMessage1
-                    ? `\n---[  ${template}  ]---\n${customMessage1}\n`
-                    : `\n---[  ${template}  ]---\nDate de Mise en service: \nProblème depuis: \nCause: \nDiagnostique:`;
-                const textToInsert2 = customMessage2
-                    ? `\n---[  ${template}  ]---\n${customMessage2}\n`
-                    : `\n---[  ${template}  ]---\n`;
-
-                const textToInsert = storageKeyPrefix === 'customText1' ? textToInsert1 : textToInsert2;
-                console.log(`Inserting text: ${textToInsert}`);
-                focusedElement.value += textToInsert;
-                focusedElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-                focusedElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-                console.log(`Text added: ${textToInsert} in field with class: ${focusedElement.className}`);
+            console.error("Extension context is invalid. Retrying...");
+            if (retryCount < MAX_RETRIES) {
+                retryCount++;
+                setTimeout(initScript, 1000); // Retry after 1 second
             } else {
-                console.log("Focused element is not a valid input/textarea or is read-only.");
+                console.error("Maximum retries reached. Script initialization failed.");
             }
-        });
+        }
     };
 
-    // Function to insert text based on model selection
+    const runMainLogic = () => {
+
+        const debounce = (func, wait) => {
+            let timeout;
+            return function () {
+                const later = () => {
+                    timeout = null;
+                    func.apply(this, arguments);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        };
+
+        const formatTime = () => {
+            const now = new Date();
+            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        };
+
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const formatText = (text) => {
+    return typeof text === 'object' ? JSON.stringify(text) : text;
+};
+
+const insertTextAndDate = async () => {
+    const focusedElement = document.activeElement;
+
+    if (
+        focusedElement &&
+        (focusedElement.tagName.toLowerCase() === 'textarea' || 
+        (focusedElement.tagName.toLowerCase() === 'input' && focusedElement.type === 'text')) &&
+        !focusedElement.readOnly
+    ) {
+        console.log("Text Area: Selected");
+
+        // Fetch replacements from Chrome storage
+        const { textReplacements } = await chrome.storage.local.get('textReplacements') || {};
+        if (!textReplacements) {
+            console.log("No text replacements found.");
+            return;
+        }
+
+        let currentValue = focusedElement.value;
+        let replaced = false;
+
+        // Loop through all text replacements
+        for (const [pattern, replacement] of Object.entries(textReplacements)) {
+            const regexPattern = new RegExp(`${escapeRegExp(pattern)}`, 'g'); // No word boundaries now
+            const formattedReplacement = formatText(replacement);
+
+            // Test if the pattern exists in the current value
+            if (regexPattern.test(currentValue)) {
+                currentValue = currentValue.replace(regexPattern, formattedReplacement);
+                replaced = true;
+            }
+        }
+
+        if (replaced) {
+            focusedElement.value = currentValue;
+            focusedElement.setSelectionRange(currentValue.length, currentValue.length);
+            focusedElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            focusedElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+            console.log("Text replaced in input/textarea.");
+        } else {
+            console.log("No patterns matched for replacement in input/textarea.");
+        }
+
+    } else {
+        // No form element is focused, so apply replacement to the entire document body
+        const emailBody = document.body;
+
+        if (emailBody) {
+            console.log("HTML Body: Found");
+
+            // Fetch replacements from Chrome storage
+            const { textReplacements } = await chrome.storage.local.get('textReplacements') || {};
+            if (!textReplacements) {
+                console.log("No text replacements found.");
+                return;
+            }
+
+            let replaced = false;
+
+            // Loop through all text replacements
+            for (const [pattern, replacement] of Object.entries(textReplacements)) {
+                const regexPattern = new RegExp(`${escapeRegExp(pattern)}`, 'g'); // Create the regex pattern
+                const currentDate = new Date().toLocaleDateString(); // Get the current date
+                const formattedReplacement = `${replacement} ${currentDate}`; // Append date to the replacement
+
+                // Search for the pattern in the HTML body text (this works for text inside elements)
+                if (regexPattern.test(emailBody.innerHTML)) {
+                    // Replace the matching text with the formatted replacement
+                    emailBody.innerHTML = emailBody.innerHTML.replace(regexPattern, formattedReplacement);
+                    replaced = true;
+                }
+            }
+
+            if (replaced) {
+                console.log("Text replaced in HTML body.");
+            } else {
+                console.log("No patterns matched for replacement in the email body.");
+            }
+        }
+    }
+};
+
+// Debounce typing to handle replacements efficiently
+let typingTimer;
+const doneTypingInterval = 300;
+
+const handleKeyUp = async () => {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(async () => {
+        const focusedElement = document.activeElement;
+
+        if (!focusedElement || !('value' in focusedElement)) {
+            console.log("Text Area: Not Found");
+            return;
+        }
+
+        const currentValue = focusedElement.value || "";
+
+        // Fetch replacements from storage
+        const storageData = await chrome.storage.local.get('textReplacements');
+        const textReplacements = storageData.textReplacements || {};
+
+        if (!textReplacements || typeof textReplacements !== 'object') {
+            console.log("No valid text replacements found.");
+            return;
+        }
+
+        // Check for patterns in the current value
+        for (const pattern in textReplacements) {
+            if (typeof pattern !== "string") continue; // Ensure pattern is a string
+            if (currentValue.includes(pattern)) {
+                await insertTextAndDate();
+                break;
+            }
+        }
+    }, doneTypingInterval);
+};
+
+
+const handleKeyDown = () => {
+    clearTimeout(typingTimer);
+};
+
+// Add event listeners for key events
+document.addEventListener('keyup', handleKeyUp);
+document.addEventListener('keydown', handleKeyDown);
+
+
+    // Convert these functions to async
+    const insertCustomTextAndDate = async (storageKeyPrefix) => {
+        const data = await chrome.storage.local.get(['customText1', 'customMessage1', 'customMessage2']);
+        const customText1 = data.customText1 || 'Vos Initiales';
+        const customMessage1 = data.customMessage1 || '';
+        const customMessage2 = data.customMessage2 || '';
+        const focusedElement = document.activeElement;
+
+        if (focusedElement && (focusedElement.tagName.toLowerCase() === 'textarea' || (focusedElement.tagName.toLowerCase() === 'input' && focusedElement.type === 'text')) && !focusedElement.readOnly) {
+            const currentDate = new Date().toLocaleDateString();
+            const currentTime = formatTime();
+            const template = `${customText1} le ${currentDate} à ${currentTime}`;
+
+            const existingText = focusedElement.value;
+            const lastInsertedPattern = existingText.match(/§(\d+)/g); // Find all §X occurrences
+            let numberToInsert = 1;
+
+            if (lastInsertedPattern) {
+                const lastNumber = parseInt(lastInsertedPattern[lastInsertedPattern.length - 1].replace('§', ''), 10);
+                numberToInsert = lastNumber + 1;
+            }
+
+            const textToInsert1 = customMessage1
+                ? `[ §${numberToInsert} ]  ---[  ${template}  ]---\n${customMessage1}`
+                : `[ §${numberToInsert} ]  ---[  ${template}  ]---\n`;
+
+            const textToInsert2 = customMessage2
+                ? `[ §${numberToInsert} ]  ---[  ${template}  ]---\n${customMessage2}`
+                : `[ §${numberToInsert} ]  ---[  ${template}  ]---\n`;
+
+            const textToInsert = storageKeyPrefix === 'customText1' ? textToInsert1 : textToInsert2;
+
+            const startPos = focusedElement.selectionStart;
+            const endPos = focusedElement.selectionEnd;
+
+            focusedElement.value = focusedElement.value.substring(0, startPos) + textToInsert + focusedElement.value.substring(endPos);
+
+            focusedElement.selectionStart = focusedElement.selectionEnd = startPos + textToInsert.length;
+
+            focusedElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            focusedElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+
+            console.log(`Text inserted`);
+        } else {
+            console.log("Text Area: Not Found");
+        }
+    };
+
     const insertTextBasedOnModel = (model) => {
         if (model === 'model1') {
             insertCustomTextAndDate('customText1');
@@ -187,7 +226,35 @@
         }
     };
 
-    // Insert custom text and date based on model
     const insertTextAndDate1 = () => insertTextBasedOnModel('model1');
     const insertTextAndDate2 = () => insertTextBasedOnModel('model2');
+
+    document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.key === 'q') {
+            console.log('Ctrl+Q detected');
+            insertTextAndDate1();
+        } else if (event.altKey && event.key === 'q') {
+            console.log('Alt+Q detected');
+            insertTextAndDate2();
+        }
+        });
+
+    //    setTimeout(addEventListeners, 1000);
+    };
+
+    initScript();  // Initialize the script
+
+  // Reload the script every 5 minutes (300000 ms)
+setInterval(() => {
+    console.log('Script logic reloaded after 5 minutes.');
+    
+    // Place your script's actual functionality here
+    executeLogic();
+}, 300000);
+
+// Main logic function
+function executeLogic() {
+    console.log('Executing script logic...');
+    // Your custom logic goes here
+}
 })();

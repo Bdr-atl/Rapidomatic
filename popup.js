@@ -1,106 +1,178 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Load existing values
-    chrome.storage.local.get(['customText1', 'customMessage1', 'customMessage2', 'selectedTeam'], (data) => {
-        document.getElementById('customText1').value = data.customText1 || '';
-        document.getElementById('customMessage1').value = data.customMessage1 || '';
-        document.getElementById('customMessage2').value = data.customMessage2 || '';
-
-        // Set the selected option in the dropdown
-        const teamSelector = document.getElementById('teamSelector');
-        teamSelector.value = data.selectedTeam || 'textReplacementsCTCLRY';
-
-        // Set the active model based on saved selection
-        const selectedModel = data.selectedModel || 'model1';
-        switchModel(selectedModel);
-    });
-
-    // Initialize model buttons and contents
-    const model1Button = document.getElementById('model1Button');
-    const model2Button = document.getElementById('model2Button');
-    const model1Content = document.getElementById('model1');
-    const model2Content = document.getElementById('model2');
-
-    // Function to switch between models
-    const switchModel = (model) => {
-        if (model === 'model1') {
-            model1Content.classList.add('active');
-            model2Content.classList.remove('active');
-            model1Button.classList.add('active');
-            model2Button.classList.remove('active');
-        } else if (model === 'model2') {
-            model2Content.classList.add('active');
-            model1Content.classList.remove('active');
-            model2Button.classList.add('active');
-            model1Button.classList.remove('active');
+    // Function to update version from manifest.json
+    const updateVersion = () => {
+        const versionElement = document.querySelector('.version');
+        if (versionElement) {
+            const manifestData = chrome.runtime.getManifest();
+            versionElement.textContent = `Version: ${manifestData.version}`;
         }
     };
 
-    model1Button.addEventListener('click', () => switchModel('model1'));
-    model2Button.addEventListener('click', () => switchModel('model2'));
+    updateVersion(); // Call the function to set the version on load
 
-    document.getElementById('saveButton').addEventListener('click', () => {
-        const activeModel = document.querySelector('.model-content.active').id;
-        const customText1 = document.getElementById('customText1').value;
-        const customMessage1 = document.getElementById('customMessage1').value;
-        const customMessage2 = document.getElementById('customMessage2').value;
-        const selectedTeam = document.getElementById('teamSelector').value;
-
-        let storageData = { 
-            selectedModel: activeModel,
-            selectedTeam: selectedTeam // Save the selected team
-        };
-        if (activeModel === 'model1') {
-            storageData.customText1 = customText1;
-            storageData.customMessage1 = customMessage1;
-        } else if (activeModel === 'model2') {
-            storageData.customMessage2 = customMessage2;
-        }
-
-        // Save values to storage
-        chrome.storage.local.set(storageData, () => {
-            console.log('Custom texts and messages saved:', storageData);
-
-            // Change button color and reset after 500ms
-            const saveButton = document.getElementById('saveButton');
-            saveButton.classList.add('clicked');
-            setTimeout(() => saveButton.classList.remove('clicked'), 500);
+    // Utility to save a key-value pair to chrome.storage.local
+    const saveToStorage = (key, value) => {
+        chrome.storage.local.set({ [key]: value }, () => {
+            console.log(`Saved ${key}:`, value);
         });
-    });
+    };
 
-    // Store the popup window ID
-    let popupWindowId = null;
+    // Utility to load a key from chrome.storage.local
+    const loadFromStorage = (keys, callback) => {
+        chrome.storage.local.get(keys, callback);
+    };
 
-    // Open text replacements popup
+    // Initialize form fields with saved data
+    const initializeFields = () => {
+        loadFromStorage(
+            ['customText1', 'customMessage1', 'customMessage2', 'selectedModel', 'textReplacements', 'fileLoaded'],
+            (data) => {
+                document.getElementById('customText1').value = data.customText1 || '';
+                document.getElementById('customMessage1').value = data.customMessage1 || '';
+                document.getElementById('customMessage2').value = data.customMessage2 || '';
+
+                const selectedModel = data.selectedModel || 'model1';
+                switchModel(selectedModel);
+
+                updateFileLoadedState(data.fileLoaded);
+                updateReplacementsList(data.textReplacements);
+            }
+        );
+    };
+
+    // Update UI for file loaded state
+    const updateFileLoadedState = (fileLoaded) => {
+        const fileLoadedMessage = document.getElementById('fileLoadedMessage');
+        const uploadButton = document.getElementById('uploadExcel');
+        if (fileLoaded) {
+            fileLoadedMessage.style.display = 'block';
+            uploadButton.classList.add('disabled');
+        } else {
+            fileLoadedMessage.style.display = 'none';
+            uploadButton.classList.remove('disabled');
+        }
+    };
+
+    // Update text replacements list
+    const updateReplacementsList = (replacements) => {
+        const replacementsList = document.getElementById('replacementsList');
+        if (replacementsList) {
+            replacementsList.innerHTML = replacements
+                ? Object.entries(replacements).map(([key, value]) => `<li>${key} → ${value}</li>`).join('')
+                : '<li>No replacements found. Please upload an Excel file.</li>';
+        }
+    };
+
+    // Switch between models
+    const switchModel = (model) => {
+        document.getElementById('model1').classList.toggle('active', model === 'model1');
+        document.getElementById('model2').classList.toggle('active', model === 'model2');
+        document.getElementById('model1Button').classList.toggle('active', model === 'model1');
+        document.getElementById('model2Button').classList.toggle('active', model === 'model2');
+
+        saveToStorage('selectedModel', model);
+    };
+
+    // Handle Excel file upload
+    const handleExcelUpload = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = e.target.result;
+            const parsedData = parseExcel(data);
+            const replacements = processExcelData(parsedData);
+
+            saveToStorage('textReplacements', replacements);
+            saveToStorage('fileLoaded', true);
+
+            updateFileLoadedState(true);
+            updateReplacementsList(replacements);
+        };
+
+        reader.readAsBinaryString(file);
+    };
+
+    // Parse Excel data
+    const parseExcel = (data) => {
+        const workbook = XLSX.read(data, { type: 'binary' });
+        return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+    };
+
+    // Process Excel data into a key-value map
+    const processExcelData = (data) => {
+        const replacements = {};
+        for (let i = 1; i < data.length; i++) {
+            const [key, value] = data[i];
+            if (key && value) {
+                replacements[key] = value;
+            }
+        }
+        return replacements;
+    };
+
+    // Event listener for text input and textarea changes
+    const addInputListeners = () => {
+        ['customText1', 'customMessage1', 'customMessage2'].forEach((id) => {
+            const field = document.getElementById(id);
+            if (field) {
+                field.addEventListener('input', () => saveToStorage(id, field.value));
+            }
+        });
+    };
+
+    // Event listener for model switching
+    const addModelSwitchListeners = () => {
+        document.getElementById('model1Button').addEventListener('click', () => switchModel('model1'));
+        document.getElementById('model2Button').addEventListener('click', () => switchModel('model2'));
+    };
+
+    // Event listener for viewing replacements
+let aideMemoireWindow = null; // Global reference to the popup window
+
+const addViewReplacementsListener = () => {
     document.getElementById('viewReplacementsButton').addEventListener('click', () => {
-        chrome.storage.local.get('selectedTeam', (data) => {
-            const selectedTeam = data.selectedTeam || 'textReplacementsCTCLRY';
-            const popupUrl = `textReplacementsPopup.html?team=${selectedTeam}`;
+        chrome.storage.local.get(['textReplacements'], (result) => {
+            if (result.textReplacements && Object.keys(result.textReplacements).length > 0) {
+                // Check if the popup is already open
+                if (aideMemoireWindow && !aideMemoireWindow.closed) {
+                    aideMemoireWindow.focus(); // Bring existing window to front
+                    return;
+                }
 
-            if (popupWindowId) {
-                chrome.windows.get(popupWindowId, (window) => {
-                    if (chrome.runtime.lastError || !window) {
-                        // If the window does not exist, create a new one
-                        createPopupWindow(popupUrl);
-                    } else {
-                        // If the window exists, bring it to focus
-                        chrome.windows.update(popupWindowId, { focused: true });
+                // Open a new popup
+                aideMemoireWindow = window.open(
+                    'aide-memoire.html',
+                    'aideMemoirePopup',
+                    'width=400,height=500,top=100,left=100,resizable=yes'
+                );
+
+                // Resize dynamically after loading
+                setTimeout(() => {
+                    if (aideMemoireWindow) {
+                        aideMemoireWindow.resizeTo(
+                            aideMemoireWindow.document.body.scrollWidth + 20,
+                            aideMemoireWindow.document.body.scrollHeight + 20
+                        );
                     }
-                });
+                }, 500);
             } else {
-                // Create a new popup window
-                createPopupWindow(popupUrl);
+                alert('No text replacements found. Please upload an Excel file first.');
             }
         });
     });
+};
 
-    const createPopupWindow = (url) => {
-        chrome.windows.create({
-            url: url,
-            type: 'popup',
-            width: 400,
-            height: 600
-        }, (window) => {
-            popupWindowId = window.id;
-        });
-    };
+    // Initialize everything
+    initializeFields();
+    addInputListeners();
+    addModelSwitchListeners();
+    addViewReplacementsListener();
+
+    // Ensure file upload event listener is added only if the element exists
+    const uploadExcel = document.getElementById('uploadExcel');
+    if (uploadExcel) {
+        uploadExcel.addEventListener('change', handleExcelUpload);
+    }
 });

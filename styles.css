@@ -1,0 +1,176 @@
+/* Général v2.0*/
+body {
+    min-width: 250px; /* Permet d'ajuster automatiquement la largeur */
+    max-width: 400px; /* Évite que ce soit trop large */
+    min-height: 250px; /* Hauteur dynamique */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+}
+
+.container {
+    padding-bottom: 80px;
+    position: relative;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    min-height: 90%;
+    justify-content: space-between;
+   // margin-bottom: 80px;
+}
+
+label {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Aide memoire style */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+td {
+    white-space: pre-line;
+}
+table th, table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #007bff;
+    color: white;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Boutons */
+button, .custom-upload-btn {
+    width: calc(100% - 20px); /* Alignement parfait */
+    padding: 10px;
+    font-size: 13px;
+    font-weight: normal;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    display: block;
+    margin: 10px auto; /* Centrage parfait */
+}
+
+button:hover, .custom-upload-btn:hover {
+    background-color: #0056b3;
+}
+
+button:active, .custom-upload-btn:active {
+    transform: scale(0.98);
+}
+
+/* Ajustement des zones de texte */
+input[type="text"], textarea {
+    width: calc(100% - 20px); /* Alignement avec les boutons */
+    padding: 8px;
+    margin-top: 3px;
+    margin-bottom: 7px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Textarea */
+textarea {
+    height: 60px;
+    resize: vertical;
+}
+
+/* Modèles */
+.model-switcher {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.model-switcher button {
+    flex: 1;
+    margin: 0 5px;
+    padding: 8px;
+    font-size: 13px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    border: 1px solid transparent;
+    color: #333;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.model-switcher button.active {
+    background-color: #005bb5;
+    color: #fff;
+    border-color: #003d80;
+}
+
+.model-content {
+    display: none;
+}
+
+.model-content.active {
+    display: block;
+}
+
+#fileLoadedMessage {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+#viewReplacementsButton {
+    margin-top: 1px;
+    width: 100%; /* Ajuste à la même largeur que les autres éléments */
+}
+
+#fileLoadedMessage {
+    color: #28a745; /* Vert vif pour succès */
+    font-weight: bold; /* Pour qu'il soit bien visible */
+    text-align: center; /* Centré dans la pop-up */
+}
+
+.custom-upload-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center; 
+    margin-top: -3px;
+}
+
+.key-users {
+    text-align: right;
+    position: absolute;
+    bottom:-70px;
+    right: 5px;
+    font-size: 10px;
+    color: #555;
+}
+
+#logo {
+    position: absolute;
+    bottom:-70px;
+    left: 5px;
+    max-width: 80px; /* Ajuste la taille du logo */
+    height: auto;
+ 
+}

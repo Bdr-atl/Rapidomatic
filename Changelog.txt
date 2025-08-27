@@ -1,30 +1,38 @@
-V2.0.1 
-Script fonctionnel, il remplace bien un texte par un autre text. 
+V1.0 
+Fin de la Beta
+Plublication  
 
-V2.0.1.1 
-Amélioration du script pour pouvoir faire plusieur remplacement 
-mais il y a un bug quand on entre ./ plusieur fois il le remplacement sur toute la page. 
+V1.0Fab 
+Possibilité de faire un remplacement de texte n'importe ou dans le text (position du curseur).
+Suite réclamation ou incompréhention d'utilisitateurs qui voulait faire un remplacement de texte lors de la présence de carractère
+ après le position du curseur. 
 
-V2.0.1.2
-Correction du bug de multiremplacement.
-Ajout des icones dans le dossier "files".
+V1.01 
+Ajout des parragraphes automatiques
 
-V2.0.1.3
-Ajout des raccourcis claviers de la version 2.0 --> tous ne fonctionne pas. 
+V1.03
+Ajouter Async / wait dans le script. 
 
-V2.0.1.5
-Correction des bugs de récupération des dates du popup.js
+V1.060
+Modification du script pour chargement d'un fichier excel ou on va chercher les raccourcis et remplacement de textes
 
-V2.0.2
-CTRL+Q, ALT+Q, et les règles de replacement fonctionnement
-Validation du fonctionnement normal. 
-Mise en publication pour BETAtest. 
+V1.061 
+Modification de l'apparence de la popup
 
-V2.0.2.1
-Ajout d'un sélecteur d'équipe pour pouvoir choisir les raccourcis. 
+V1.062 
+Bux fixes
 
-V2.0.2.2
-Ajoute d'une popup "aide mémoire". 
-Bug Fixe: suppression de l'ouverture d'une nouvelle fenetre aide memoire à chaque clic sur le bouton.
+V1.063
+Amélioation de l'interface pop-up et traduction 
 
+V1.064 
+La version va se chercher directement dans le Manifest. 
+Resolution d'un bug dans le script. 
+Traduction de l'aide memoire.
 
+V1.065
+Modification du style.css pour la pop-up aide-mémoire.
+
+V1.066
+Modification du popup.js pour qu'il ouvre l'aide mémoire directement aux bonnes dimentions. 
+Retour a la ligne des remplacements de textes pour plus de lisibilité. 
